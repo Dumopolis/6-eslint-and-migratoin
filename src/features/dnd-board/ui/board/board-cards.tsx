@@ -4,6 +4,7 @@ import { DotsSixVertical, RemoveIcon } from "@/shared/ui/ui-icons";
 import clsx from "clsx";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useBoardStore } from "../../model/use-board-store";
+import { useBoardSearch } from "../../model/board-search.store";
 
 export function BoardCards({
   col,
@@ -12,6 +13,8 @@ export function BoardCards({
   col: BoardCol;
   className?: string;
 }) {
+  const query = useBoardSearch((s) => s.query);
+
   return (
     <Droppable direction="vertical" droppableId={col.id} type="card">
       {(provided, snapshot) => (
@@ -19,19 +22,23 @@ export function BoardCards({
           {...provided.droppableProps}
           ref={provided.innerRef}
           className={clsx(
-            snapshot.isDraggingOver && "bg-blue-100/50",
+            snapshot.isDraggingOver && "bg-green-100/40",
             "p-1",
             className,
           )}
         >
-          {col.items.map((item, index) => (
-            <BoardCardComponent
-              key={item.id}
-              card={item}
-              index={index}
-              colId={col.id}
-            />
-          ))}
+          {col.items
+            .filter(item =>
+              item.title.toLowerCase().includes(query.toLowerCase()),
+            )
+            .map((item, index) => (
+              <BoardCardComponent
+                key={item.id}
+                card={item}
+                index={index}
+                colId={col.id}
+              />
+            ))}
           {provided.placeholder}
         </div>
       )}
